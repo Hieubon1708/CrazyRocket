@@ -18,6 +18,8 @@ public class PlayerController : MonoBehaviour
     Tween delay;
     Rigidbody rb;
 
+    bool isRight;
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
@@ -66,7 +68,7 @@ public class PlayerController : MonoBehaviour
 
             rb.useGravity = true;
 
-            rb.angularVelocity = -Vector3.forward * 15;
+            rb.angularVelocity = (isRight ? -Vector3.forward : Vector3.forward) * 15;
 
             arrow.sizeDelta = new Vector2(minArrow, arrow.sizeDelta.y);
 
@@ -79,6 +81,8 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
+            isRight = IsRight();
+
             Flip();
 
             Time.timeScale = 1f;
@@ -88,7 +92,7 @@ public class PlayerController : MonoBehaviour
 
             rb.angularVelocity = Vector3.zero;
 
-            /*rb.velocity = IsRight() ? transform.right : -transform.right * GetForce();
+            rb.velocity = (isRight ? transform.right : -transform.right) * GetForce();
 
             delay = DOVirtual.DelayedCall(GetTime(), delegate
             {
@@ -96,14 +100,14 @@ public class PlayerController : MonoBehaviour
 
                 rb.velocity *= 0.5f;
 
-                rb.angularVelocity = -Vector3.forward * 15;
-            });*/
+                rb.angularVelocity = (isRight ? -Vector3.forward : Vector3.forward) * 15;
+            });
         }
     }
 
     bool IsRight()
     {
-        float angle = ConvertAngle(transform.eulerAngles.z);
+        float angle = ConvertAngle(arrow.eulerAngles.z);
 
         return angle >= -90f && angle <= 90f;
     }
