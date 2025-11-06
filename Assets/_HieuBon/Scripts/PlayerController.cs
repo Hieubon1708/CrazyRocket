@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
 
     bool isDrag;
 
+    public float angularVelocity;
+
     public float maxForce;
     public float maxTime;
 
@@ -16,18 +18,21 @@ public class PlayerController : MonoBehaviour
     public RectTransform arrow;
 
     Tween delay;
-    Rigidbody rb;
+    Rigidbody2D rb;
 
     bool isRight;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody2D>();
+
+        rb.simulated = false;
 
         arrow.gameObject.SetActive(false);
 
-        rb.isKinematic = true;
+        arrow.anchoredPosition = new Vector2(0, 75);
+        arrow.localRotation = Quaternion.Euler(0, 0, 90);
     }
 
     void Update()
@@ -62,13 +67,10 @@ public class PlayerController : MonoBehaviour
             Time.timeScale = 0.3f;
             Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
-            rb.isKinematic = false;
-
-            rb.velocity *= 0.1f;
-
-            rb.useGravity = true;
-
-            rb.angularVelocity = (isRight ? -Vector3.forward : Vector3.forward) * 15;
+            if (rb.simulated)
+            {
+                AfterFly();
+            }
 
             arrow.sizeDelta = new Vector2(minArrow, arrow.sizeDelta.y);
 
@@ -81,28 +83,49 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            isRight = IsRight();
-
-            Flip();
-
             Time.timeScale = 1f;
             Time.fixedDeltaTime = 0.02f;
 
-            rb.useGravity = false;
+            rb.gravityScale = 0;
+            rb.angularVelocity = 0;
 
-            rb.angularVelocity = Vector3.zero;
-
-            rb.velocity = (isRight ? transform.right : -transform.right) * GetForce();
-
-            delay = DOVirtual.DelayedCall(GetTime(), delegate
+            if (!rb.simulated)
             {
-                rb.useGravity = true;
+                isRight = true;
 
-                rb.velocity *= 0.5f;
+                arrow.anchoredPosition = new Vector2(50, 0);
+                arrow.localRotation = Quaternion.identity;
 
-                rb.angularVelocity = (isRight ? -Vector3.forward : Vector3.forward) * 15;
-            });
+                rb.simulated = true;
+
+                rb.velocity = transform.up * GetForce();
+
+                delay = DOVirtual.DelayedCall(GetTime(), delegate
+                {
+                    AfterFly();
+                });
+            }
+            else
+            {
+                isRight = IsRight();
+
+                Flip();
+
+                rb.velocity = (isRight ? transform.right : -transform.right) * GetForce();
+
+                delay = DOVirtual.DelayedCall(GetTime(), delegate
+                {
+                    AfterFly();
+                });
+            }
         }
+    }
+
+    void AfterFly()
+    {
+        rb.gravityScale = 1;
+        rb.velocity *= 0.5f;
+        rb.angularVelocity = isRight ? -angularVelocity : angularVelocity;
     }
 
     bool IsRight()
