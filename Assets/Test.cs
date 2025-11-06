@@ -52,7 +52,7 @@ public class Test : MonoBehaviour
 
             cam.orthographicSize -= deltaFOV;
 
-            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, 5, 15);
+            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize, 3, 15);
         }
 
         if (Input.GetKeyDown(KeyCode.LeftAlt)) matShape.color = Color.green;
@@ -60,7 +60,7 @@ public class Test : MonoBehaviour
 
         if (Input.GetKey(KeyCode.LeftAlt) && Input.GetMouseButton(0))
         {
-            float x = Mathf.Clamp(startSize.x + (currentInput.x - startInput.x), 1, 5);
+            float x = Mathf.Clamp(startSize.x + (currentInput.x - startInput.x), 0.15f, 10f);
 
             StampSize = Vector2.one * x;
             shape.localScale = Vector3.one * x;
