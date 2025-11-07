@@ -144,8 +144,6 @@ public class PlayerController : MonoBehaviour
 
     void Flip()
     {
-        Debug.Log(IsRight());
-
         if (IsRight())
         {
             if (arrow.anchoredPosition.x > 0) return;
